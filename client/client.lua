@@ -101,17 +101,6 @@ Citizen.CreateThread(function()
     end
 end)
 
--- ^0 = White
--- ^1 = Red
--- ^2 = Green
--- ^3 = Yellow
--- ^4 = Blue
--- ^5 = Light Blue
--- ^6 = Purple
--- ^7 = White
--- ^8 = Dark Red
--- ^9 = Dark Blue
-
 AddEventHandler('onResourceStop', function(resourceName)
   if (GetCurrentResourceName() ~= resourceName) then
     return

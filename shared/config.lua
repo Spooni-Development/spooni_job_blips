@@ -1,7 +1,7 @@
 Config = {}
 
 Config.DevMode = true
-Config.Locale = 'de' -- en, de, fr
+Config.Locale = 'en' -- en, de, fr
 Config.Key = 0x760A9C6F -- G
 
 Config.Blips = {
@@ -14,7 +14,7 @@ Config.Blips = {
             online = 'BLIP_MODIFIER_MP_COLOR_8', -- Green
             offline = 'BLIP_MODIFIER_MP_COLOR_32', -- White
         },
-        jobs = {'police'}
+        jobs = {'sheriff'}
     },
 
     {
