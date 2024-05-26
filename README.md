@@ -1,16 +1,16 @@
 # 📍 Job Blips
-Documentation relating to the spooni_jobblips.
+Documentation relating to the [spooni_job_blips](https://github.com/Spooni-Development/spooni_job_blips).
 
 ## 1. Installation
-spooni_jobblips works only with VORP. 
+spooni_job_blips works only with VORP. 
 
-To install spooni_jobblips:
+To install spooni_job_blips:
 - Download the resource
-  - On [Github](https://github.com/Spooni-Development/spooni_jobblips)
+  - On [Github](https://github.com/Spooni-Development/spooni_job_blips)
 - Drag and drop the resource into your resources folder
-  - `spooni_jobblips`
+  - `spooni_job_blips`
 - Add this ensure in your server.cfg
-  - `ensure spooni_jobblips`
+  - `ensure spooni_job_blips`
 - Now you can configure and translate the script as you like
   - `config.lua`
   - `translation.lua`
@@ -55,3 +55,4 @@ Config.Blips = {
         jobs = {'police'}
     },
 }
+```
