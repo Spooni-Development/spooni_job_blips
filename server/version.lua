@@ -3,7 +3,7 @@ local rs = GetCurrentResourceName()
 local version = 1
 
 Citizen.CreateThread(function()
-    PerformHttpRequest("https://raw.githubusercontent.com/Spooni-Development/spooni_updates/main/scripts/spooni_jobblips.json", function(err, text, headers)
+    PerformHttpRequest("https://raw.githubusercontent.com/Spooni-Development/spooni_updates/main/scripts/spooni_job_blips.json", function(err, text, headers)
         local text = json.decode(text)
         Wait(5000)        
         if tonumber(version) == tonumber(text.version) then
