@@ -5,16 +5,16 @@ Translation = {
         ['changeStatus'] = 'Change Status',
         -- Notify
         ['noPerms'] = 'You cant do that!',
+        ['isOnline'] = 'opens.',
+        ['isOffline'] = 'closed.',
+
     },
     ['de'] = {
         -- Prompt
         ['changeStatus'] = 'Status ändern',
         -- Notify
         ['noPerms'] = 'Du darfst das nicht!',
-    },
-    ['fr'] = {
-        ['changeStatus'] = 'Changer le statut',
-        -- Notify
-        ['noPerms'] = 'Vous ne pouvez pas faire cela!',
+        ['isOnline'] = 'öffnet.',
+        ['isOffline'] = 'schließt.',
     },
 }

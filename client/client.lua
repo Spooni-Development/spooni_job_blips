@@ -1,60 +1,37 @@
 local blipData = {}
-local Prompt = GetRandomIntInRange(0, 0xffffff)
+local UIPrompt = {}
+local promptGroup = GetRandomIntInRange(0, 0xffffff)
 local VorpCore = exports.vorp_core:GetCore()
 
-AddEventHandler('onClientResourceStart', function (resourceName)
-  if(GetCurrentResourceName() ~= resourceName) then
-    return
-  end
-  generateBlips()
-end)
-
-RegisterNetEvent("vorp:initCharacter")
-AddEventHandler("vorp:initCharacter", function()
-  generateBlips()
-end)
-
 -- DevMode
-
-function Debug(...)
+local function Debug(...)
   if Config.DevMode then
       print(...)
   end
 end
 
 -- Prompt
-
-function ChangeStatusPrompt()
-    Citizen.CreateThread(function()
-        local str = Translation[Config.Locale]['changeStatus']
-        ChangeStatus = Citizen.InvokeNative(0x04F97DE45A519419)
-        PromptSetControlAction(ChangeStatus, Config.Key)
-        str = CreateVarString(10, 'LITERAL_STRING', str)
-        PromptSetText(ChangeStatus, str)
-        PromptSetEnabled(ChangeStatus, true)
-        PromptSetVisible(ChangeStatus, true)
-        PromptSetHoldMode(ChangeStatus, false)
-        PromptSetGroup(ChangeStatus, Prompt)
-        PromptRegisterEnd(ChangeStatus)
-    end)
+UIPrompt.activate = function(title)
+    local label = CreateVarString(10, 'LITERAL_STRING', title)
+    PromptSetActiveGroupThisFrame(promptGroup, label)
 end
 
-function DisplayPrompt(name)
-    local PromptGroup = CreateVarString(10, 'LITERAL_STRING', name)
-    PromptSetActiveGroupThisFrame(Prompt, PromptGroup)
+UIPrompt.initialize = function()
+    local str = Translation[Config.Locale]['changeStatus']
+    ChangeStatus = PromptRegisterBegin()
+    PromptSetControlAction(ChangeStatus, Config.Key)
+    str = CreateVarString(10, 'LITERAL_STRING', str)
+    PromptSetText(ChangeStatus, str)
+    PromptSetEnabled(ChangeStatus, 1)
+    PromptSetVisible(ChangeStatus, 1)
+    PromptSetStandardMode(ChangeStatus, 1)
+    PromptSetGroup(ChangeStatus, promptGroup)
+    Citizen.InvokeNative(0xC5F428EE08FA7F2C, ChangeStatus, true)
+    PromptRegisterEnd(ChangeStatus)
 end
 
--- BLip
-
-function generateBlips()
-  VorpCore.RpcCall("spooni_jobblips:getBlipData", function(data)
-    if destroyBlips() == true then
-      showBlips(data)
-    end
-  end)
-end
-
-function showBlips(data)
+-- Functions
+local function showBlips(data)
   blipData = data
   for k,v in pairs(blipData) do
     local blip = N_0x554d9d53f696d002(1664425300, v.coords.x, v.coords.y, v.coords.z)
@@ -66,7 +43,7 @@ function showBlips(data)
   end
 end
 
-function destroyBlips()
+local function destroyBlips()
   for k,v in pairs(blipData) do
     Debug(v.blip)
     RemoveBlip(v.blip)
@@ -75,6 +52,27 @@ function destroyBlips()
   return true
 end
 
+local function generateBlips()
+  VorpCore.RpcCall("spooni_jobblips:getBlipData", function(data)
+    if destroyBlips() == true then
+      showBlips(data)
+    end
+  end)
+end
+
+AddEventHandler('onClientResourceStart', function (resourceName)
+  if(GetCurrentResourceName() ~= resourceName) then
+    return
+  end
+  generateBlips()
+end)
+
+-- Events
+RegisterNetEvent("vorp:initCharacter")
+AddEventHandler("vorp:initCharacter", function()
+  generateBlips()
+end)
+
 RegisterNetEvent("spooni_jobblips:updateBlipsClient")
 AddEventHandler("spooni_jobblips:updateBlipsClient", function(newBlipsData)
   if destroyBlips() == true then
@@ -82,22 +80,28 @@ AddEventHandler("spooni_jobblips:updateBlipsClient", function(newBlipsData)
   end
 end)
 
+-- Thread
 Citizen.CreateThread(function()
-    ChangeStatusPrompt()
+    UIPrompt.initialize()
     while true do
-        Citizen.Wait(5)
-        local player = PlayerPedId()
-        local pCoords = GetEntityCoords(player) 
+      Citizen.Wait(0)
+      local sleep = true
+      local pCoords = GetEntityCoords(PlayerPedId())
 
-        for _, v in pairs(blipData) do
-            if GetDistanceBetweenCoords(pCoords, v.coords.x, v.coords.y, v.coords.z, true) < v.radius then
-                DisplayPrompt(v.name)
-                if Citizen.InvokeNative(0x305C8DCD79DA8B0F, 0, Config.Key) then
-                  Debug("^2 Change the status from ^1"..v.name.."^2 Blip ^0")
-                  TriggerServerEvent("spooni_jobblips:changeBlipData", _)
-                end
-            end
-        end
+      for _, v in ipairs(blipData) do
+          if GetDistanceBetweenCoords(pCoords, v.coords.x, v.coords.y, v.coords.z, true) < v.radius then
+              sleep = false
+              UIPrompt.activate(v.name)
+              if UiPromptHasStandardModeCompleted(ChangeStatus) then
+                Debug("^2 Change the status from ^1"..v.name.."^2 Blip ^0")
+                TriggerServerEvent("spooni_jobblips:changeBlipData", _)
+              end
+          end
+      end
+
+      if sleep then
+        Citizen.Wait(500)
+      end
     end
 end)
 
@@ -106,5 +110,5 @@ AddEventHandler('onResourceStop', function(resourceName)
     return
   end
   destroyBlips()
-  Debug("All blips have been removed")
+  Debug("All blips have been removed.")
 end)
