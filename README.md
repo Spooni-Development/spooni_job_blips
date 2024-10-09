@@ -10,7 +10,9 @@ To install spooni_job_blips:
 - Drag and drop the resource into your resources folder
   - `spooni_job_blips`
 - Add this ensure in your server.cfg
-  - `ensure spooni_job_blips`
+  ```
+    ensure spooni_job_blips
+  ```
 - Now you can configure and translate the script as you like
   - `config.lua`
   - `translation.lua`
@@ -24,6 +26,7 @@ Go to a configured blip and interact with the prompt. The color of the blip then
 
 ## 3. For developers
 
+:::details Config.lua
 ```lua
 Config = {}
 
@@ -55,3 +58,4 @@ Config.Blips = {
 }
 
 ```
+:::
