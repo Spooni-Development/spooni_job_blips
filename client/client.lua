@@ -13,21 +13,21 @@ end
 -- Prompt
 UIPrompt.activate = function(title)
     local label = CreateVarString(10, 'LITERAL_STRING', title)
-    PromptSetActiveGroupThisFrame(promptGroup, label)
+    UiPromptSetActiveGroupThisFrame(promptGroup, label)
 end
 
 UIPrompt.initialize = function()
     local str = Translation[Config.Locale]['changeStatus']
-    ChangeStatus = PromptRegisterBegin()
-    PromptSetControlAction(ChangeStatus, Config.Key)
+    ChangeStatus = UiPromptRegisterBegin()
+    UiPromptSetControlAction(ChangeStatus, Config.Key)
     str = CreateVarString(10, 'LITERAL_STRING', str)
-    PromptSetText(ChangeStatus, str)
-    PromptSetEnabled(ChangeStatus, 1)
-    PromptSetVisible(ChangeStatus, 1)
-    PromptSetStandardMode(ChangeStatus, 1)
-    PromptSetGroup(ChangeStatus, promptGroup)
-    Citizen.InvokeNative(0xC5F428EE08FA7F2C, ChangeStatus, true)
-    PromptRegisterEnd(ChangeStatus)
+    UiPromptSetText(ChangeStatus, str)
+    UiPromptSetEnabled(ChangeStatus, 1)
+    UiPromptSetVisible(ChangeStatus, 1)
+    UiPromptSetStandardMode(ChangeStatus, 1)
+    UiPromptSetGroup(ChangeStatus, promptGroup)
+    UiPromptSetUrgentPulsingEnabled(ChangeStatus, true)
+    UiPromptRegisterEnd(ChangeStatus)
 end
 
 -- Functions
@@ -37,8 +37,8 @@ local function showBlips(data)
     local blip = N_0x554d9d53f696d002(1664425300, v.coords.x, v.coords.y, v.coords.z)
     SetBlipSprite(blip, v.sprite, true)
     SetBlipScale(blip, 0.2)
-    Citizen.InvokeNative(0x662D364ABF16DE2F, blip, GetHashKey(v.color))
-    Citizen.InvokeNative(0x9CB1A1623062F402, blip, v.name)
+    SetBlipName(blip, v.name)
+    BlipAddModifier(blip, GetHashKey(v.color))
     v.blip = blip
   end
 end
@@ -81,26 +81,27 @@ AddEventHandler("spooni_jobblips:updateBlipsClient", function(newBlipsData)
 end)
 
 -- Thread
-Citizen.CreateThread(function()
+CreateThread(function()
     UIPrompt.initialize()
     while true do
-      Citizen.Wait(0)
+      Wait(0)
       local sleep = true
       local pCoords = GetEntityCoords(PlayerPedId())
 
       for _, v in ipairs(blipData) do
-          if GetDistanceBetweenCoords(pCoords, v.coords.x, v.coords.y, v.coords.z, true) < v.radius then
-              sleep = false
-              UIPrompt.activate(v.name)
-              if UiPromptHasStandardModeCompleted(ChangeStatus) then
-                Debug("^2 Change the status from ^1"..v.name.."^2 Blip ^0")
-                TriggerServerEvent("spooni_jobblips:changeBlipData", _)
-              end
-          end
+        local dist = #(pCoords - v.coords)
+        if dist <= v.radius then
+            sleep = false
+            UIPrompt.activate(v.name)
+            if UiPromptHasStandardModeCompleted(ChangeStatus) then
+              Debug("^2 Change the status from ^1"..v.name.."^2 Blip ^0")
+              TriggerServerEvent("spooni_jobblips:changeBlipData", _)
+            end
+        end
       end
 
       if sleep then
-        Citizen.Wait(500)
+        Wait(500)
       end
     end
 end)
